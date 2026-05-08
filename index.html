@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>RDDoS Terminal</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: #000000;
+      transition: opacity 3s ease;
+      color: #00ff88;
+      font-family: "Courier New", monospace;
+      font-size: 42px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-align: left;
+      padding: 20px;
+    }
+
+    body.fade {
+      opacity: 0;
+    }
+
+    .typing-container {
+      position: relative;
+      display: inline-block;
+      text-shadow: none;
+    }
+
+    #text {
+      white-space: pre-wrap;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 46px;
+      background: #00ff88;
+      vertical-align: bottom;
+      animation: blink 0.8s infinite, pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.15); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="typing-container" id="container">
+    <span id="text"></span><span class="cursor"></span>
+  </div>
+
+  <script>
+    const textElement = document.getElementById("text");
+    const container = document.getElementById("container");
+
+    let currentHTML = "";
+    let isBusy = false;
+    let demoStarted = false;
+
+    async function enterFullscreen() {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (err) {}
+    }
+
+    document.addEventListener("keydown", async (e) => {
+      if (e.key.toLowerCase() === "f") {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await enterFullscreen();
+        }
+      }
+    });
+
+    function s(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function t(html) {
+      if (isBusy) return;
+      isBusy = true;
+
+      let i = 0;
+
+      while (i < html.length) {
+        if (html[i] === "<") {
+          const closeIndex = html.indexOf(">", i);
+          const tag = html.substring(i, closeIndex + 1);
+
+          currentHTML += tag;
+          textElement.innerHTML = currentHTML;
+
+          i = closeIndex + 1;
+        } else {
+          currentHTML += html[i];
+          textElement.innerHTML = currentHTML;
+
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth"
+          });
+
+          i++;
+
+          await s(Math.random() * 90 + 35);
+        }
+      }
+
+      isBusy = false;
+    }
+
+    async function d(amount) {
+      if (isBusy) return;
+      isBusy = true;
+
+      for (let i = 0; i < amount; i++) {
+        if (currentHTML.endsWith(">")) {
+          let j = currentHTML.length - 1;
+
+          while (j >= 0 && currentHTML[j] !== "<") {
+            j--;
+          }
+
+          currentHTML = currentHTML.slice(0, j);
+        } else {
+          currentHTML = currentHTML.slice(0, -1);
+        }
+
+        textElement.innerHTML = currentHTML;
+
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth"
+        });
+
+        await s(Math.random() * 50 + 25);
+      }
+
+      isBusy = false;
+    }
+
+    function p(html) {
+      currentHTML += html;
+      textElement.innerHTML = currentHTML;
+
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth"
+      });
+    }
+
+    function clearAllText() {
+      currentHTML = "";
+      textElement.innerHTML = "";
+    }
+
+    async function e() {
+      if (isBusy) return;
+      isBusy = true;
+
+      document.body.classList.add("fade");
+
+      await s(3000);
+
+      document.body.style.backgroundColor = "#000000";
+      document.body.style.background = "#000000";
+      textElement.style.color = "#000000";
+      const cursor = document.querySelector(".cursor");
+      if (cursor) cursor.style.display = "none";
+
+      await s(500);
+
+      isBusy = false;
+    }
+
+    async function init() {
+      await s(500);
+      await p("Please click the screen to start...");
+      const clickHandler = async () => {
+        if (demoStarted) return;
+        document.removeEventListener("click", clickHandler);
+        document.removeEventListener("touchstart", clickHandler);
+        await startDemoAfterClick();
+      };
+      document.addEventListener("click", clickHandler);
+      document.addEventListener("touchstart", clickHandler);
+    }
+
+    async function startDemoAfterClick() {
+      if (demoStarted) return;
+      demoStarted = true;
+
+      await enterFullscreen();
+
+      await s(300);
+      clearAllText();
+
+      await s(3000)
+      await t("Hi");
+      await s(1000);
+      await t(".");
+      await s(2000);
+      await d(3);
+      await s(2000);
+      await t("Let me teach you how to ");
+      await s(1000);
+      await t("<b>DDos</b>");
+      await s(300);
+      await t(".");
+      await s(1000)
+      await d(35)
+      await t("<b>(FOR ")
+      await s(500)
+      await t("EDUCATION ")
+      await s(500)
+      await t("ONLY)</b>")
+      await s(500);
+      await d(50);
+      await s(1000);
+      await p("user:~ user$ ");
+      await s(1000);
+      await t("git clone https://github.com/Red-company/RDDoS_Tool.git");
+      await t("<br>");
+      await s(1000);
+      await p("Cloning into 'RDDoS_Tool'...");
+      await s(1000);
+      await p("<br>remote: Enumerating objects: 137, done.");
+      await s(200);
+      await p("<br>remote: Counting objects: 100% (22/22), done.");
+      await s(200);
+      await p("<br>remote: Compressing objects: 100% (15/15), done.");
+      await s(200);
+      await p("<br>remote: Total 137 (delta 16), reused 8 (delta 7), pack-reused 115 (from 1)");
+      await s(500);
+      await p("<br>Receiving objects: 100% (137/137), 1007.84 KiB | 1.20 MiB/s, done.");
+      await s(200);
+      await p("<br>Resolving deltas: 100% (70/70), done.");
+      await s(100);
+      await p("<br>user:~ user$ ");
+      await s(1000);
+      await t("cd RDDoS_Tool");
+      await t("<br>");
+      await p("user:~RDDoS_Tool user$ ");
+      await s(1000);
+      await t("bash setup.sh");
+      await s(1000);
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("                Installing RedDDoS Tool,");
+      await p("<br>                Please Wait...");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await s(5000);
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("[*] RedDDoS Tool was installed successfully.");
+      await p("<br>");
+      await p("<br>");
+      await p("To run it type 'python3 RDDoS_Tool.py'");
+      await p("<br> ");
+      await p("<br>");
+      await p("user:~RDDoS_Tool user$ ");
+      await s(1500);
+      await t("python3 RDDoS_Tool.py");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await s(500);
+      await p("   _____            ______    ______         __      ______) Version: 1.2");
+      await p("<br>");
+      await p("  (, /   )      /) (, /    ) (, /    )   (__/  )    (, /        /)");
+      await p("<br>");
+      await p("    /__ /  _  _(/    /    /    /    / ___  /          /  ______// ");
+      await p("<br>");
+      await p(" ) /   /__(/_(_(_  _/___ /_  _/___ /_(_)) /        ) /  (_)(_)(/_");
+      await p("<br>");
+      await p("(_/              (_/___ /  (_/___ /    (_/        (_/");
+      await p("<br>");
+      await p("<br>");
+      await p("                        Author: Mr.Red");
+      await p("<br>");
+      await p("       Github: https://github.com/Red-company/RDDoS_Tool");
+      await p("<br>");
+      await p("                   For legal purposes only");
+      await p("<br>");
+      await p("<br><b>1. Website Domain");
+      await p("<br>2. IP Address");
+      await p("<br>3. About");
+      await p("<br>4. Exit</b>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("> ");
+      await s(1000);
+      await t("2");
+      await s(1000);
+      await p("<br>");
+      await s(300);
+      await p("IP Address: ");
+      await s(2000);
+      await t("8.8.8.8");
+      await s(500)
+      await p("<br>");
+      await s(200);
+      await p("Certain port? [y/n]: ");
+      await s(700);
+      await t("y");
+      await s(500)
+      await p("<br>");
+      await s(200);
+      await p("Port: ");
+      await s(2000);
+      await t("8000");
+      await s(500);
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("<br>");
+      await p("INITIALIZING....");
+      await s(2000);
+      await p("<br>");
+      await p("STARTING...");
+      await s(5000);
+      await p("<br>")
+
+      let packetNumber = 1;
+      const totalPackets = 99
+      for (let i = 0; i < totalPackets; i++) {
+        await p(`Sent ${packetNumber} packets to 8.8.8.8 through port:8000`);
+        packetNumber++;
+        await p("<br>");
+        await s(0.01);
+      }
+      await p("Sent 100 packets to 8.8.8.8 through port:8000");
+      await p("^C");
+      await p("<br>");
+      await p("<br>");
+      await p("user:~RDDoS_Tool user$ ");
+      await s(3000)
+      e();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
